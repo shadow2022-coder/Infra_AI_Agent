@@ -1,0 +1,1 @@
+"""InfraRed AI core package."""
