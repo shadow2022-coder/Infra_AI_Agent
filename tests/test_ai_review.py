@@ -1,11 +1,18 @@
 import unittest
 import zipfile
 from io import BytesIO
+<<<<<<< HEAD
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from app import SAMPLE_ROOT, _load_local_env_files, make_safe_report_base_name
+=======
+from pathlib import Path
+from tempfile import TemporaryDirectory
+
+from app import make_safe_report_base_name
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 from core.agent_runner import normalize_agent_output
 from core.repair_agent import run_deterministic_repair, should_attempt_repair
 from core.report_renderer import render_fix_brief_markdown, render_report_html
@@ -58,6 +65,7 @@ class AIReviewTests(unittest.TestCase):
         self.assertEqual(make_safe_report_base_name("My Cool App.zip"), "My_Cool_App")
         self.assertEqual(make_safe_report_base_name("../../secret.zip"), "secret")
 
+<<<<<<< HEAD
     def test_local_env_loader_reads_dotenv_values(self):
         env_name = "INFRARED_TEST_ONLY_KEY"
         original = os.environ.pop(env_name, None)
@@ -93,6 +101,8 @@ class AIReviewTests(unittest.TestCase):
         self.assertTrue(SAMPLE_ROOT.exists())
         self.assertTrue(SAMPLE_ROOT.is_dir())
 
+=======
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
     def test_docker_rule_can_be_not_applicable(self):
         scan = {"raw_contents": {"app/package.json": "{}"}}
         result = run_rules(scan)

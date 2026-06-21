@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+<<<<<<< HEAD
 import os
+=======
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 import re
 from datetime import datetime as dt
 from pathlib import Path
@@ -24,6 +27,7 @@ from core.stack_detector import detect_stack
 from core.zip_loader import extract_zip_bytes
 
 ROOT = Path(__file__).parent
+<<<<<<< HEAD
 TEMPLATE_PATH = ROOT / "templates" / "report_template.html"
 ZIP_PROMPT = """Create a small demo web application ZIP for defensive security scanner testing.
 
@@ -101,10 +105,38 @@ Important:
 * Zip the folder.
 * Give me the ZIP file.
 """
+=======
+SAMPLE_ROOT = ROOT / "sample_project" / "insecure_next_supabase_app"
+TEMPLATE_PATH = ROOT / "templates" / "report_template.html"
+ZIP_PROMPT = """Create a small demo web application ZIP for defensive security scanner testing.
+
+Requirements:
+
+* Make it a simple Node/Express, Python/FastAPI, or Next.js app.
+* Include a README.md with exact local run command.
+* Include package.json or requirements.txt.
+* Include a Dockerfile.
+* App must run locally on one port.
+* Print the port clearly at startup.
+* Add a health route: /api/health or /health.
+* Add 3 to 5 intentional but safe demo security issues:
+
+  1. committed .env with fake API key only
+  2. wildcard CORS
+  3. missing security headers
+  4. visible fake frontend env value
+  5. unprotected /admin or /debug route
+* Use fake secrets only. Never use real keys.
+* Do not include malware, destructive code, crypto miners, reverse shells, scanners, brute force, or external attack behavior.
+* Do not call real third-party APIs.
+* Keep the project small and easy to run.
+* Output a ZIP file."""
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 PROVIDER_CONFIG = {
     "OpenAI": {
         "base_url": "https://api.openai.com/v1",
+<<<<<<< HEAD
         "models": [
             {"label": "GPT-4.1 Mini", "value": "gpt-4.1-mini"},
             {"label": "GPT-4o Mini", "value": "gpt-4o-mini"},
@@ -199,6 +231,20 @@ def _configured_api_key(provider: str) -> tuple[str, str]:
             return value, f"environment variable `{name}`"
     return "", ""
 
+=======
+        "models": ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4.1", "gpt-4o", "custom"],
+    },
+    "FastRouter": {
+        "base_url": "https://openrouter.ai/api/v1",
+        "models": ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "google/gemini-1.5-pro", "custom"],
+    },
+    "Custom OpenAI-compatible": {
+        "base_url": "https://api.openai.com/v1",
+        "models": ["custom"],
+    },
+}
+
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 def _dynamic_disabled_result(mode: str) -> dict:
     return {
@@ -290,6 +336,7 @@ def _analyze_uploaded_file(uploaded_file) -> dict:
 
 
 def _analyze_sample() -> dict:
+<<<<<<< HEAD
     return _analyze_root(SAMPLE_ROOT, SAMPLE_ROOT.name, "sample")
 
 
@@ -306,6 +353,19 @@ def _model_label(provider: str, model_value: str) -> str:
         if option["value"] == model_value:
             return option["label"]
     return model_value
+=======
+    return _analyze_root(SAMPLE_ROOT, "insecure_next_supabase_app", "sample")
+
+
+def _provider_base_url(provider: str, base_url_input: str) -> str:
+    return base_url_input.strip() or PROVIDER_CONFIG[provider]["base_url"]
+
+
+def _selected_model(provider: str, preset: str, custom_name: str) -> str:
+    if preset != "custom":
+        return preset
+    return custom_name.strip() or PROVIDER_CONFIG[provider]["models"][0]
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 
 def _render_badges(badges: list[str]) -> None:
@@ -424,8 +484,13 @@ def _render_mvp_notice() -> None:
     notice_col, dismiss_col = st.columns([12, 1])
     with notice_col:
         st.info(
+<<<<<<< HEAD
             "This is an MVP demo of InfraRed AI. In this share-safe build, live AI keys load only from server-side "
             "secrets or environment variables and are never entered in the UI. Do not commit real secrets."
+=======
+            "This is an MVP demo of InfraRed AI. The API key field is included only for local/demo testing "
+            "and is available in the Settings/API section. Do not commit real secrets. Close this message to continue."
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         )
     with dismiss_col:
         if st.button("X", key="dismiss_mvp_notice", help="Dismiss this MVP notice"):
@@ -588,7 +653,11 @@ def _run_ai_board(analysis: dict, provider: str, api_key: str, model: str, base_
             st.session_state["ai_cache"].pop(analysis["project_hash"], None)
     dynamic_summary = _dynamic_summary_for_ai(dynamic_result)
     safe_base = make_safe_report_base_name(
+<<<<<<< HEAD
         analysis["source_name"] if analysis["source_type"] == "upload" else SAMPLE_ROOT.name,
+=======
+        analysis["source_name"] if analysis["source_type"] == "upload" else "sample_project",
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         fallback="infrared_scan",
     )
     html_filename = f"{safe_base}_report.html"
@@ -932,14 +1001,20 @@ def main() -> None:
     st.set_page_config(page_title="InfraRed AI", page_icon=":shield:", layout="wide")
     _init_state()
 
+<<<<<<< HEAD
     st.title("Review an AI-built app before you ship it.")
     st.caption("Start with the decision, then open the technical evidence only when you need it.")
+=======
+    st.title("Upload your AI-generated app before deployment.")
+    st.caption("Simple first. Technical details second. Deep evidence only inside expanders.")
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
     _render_mvp_notice()
     _render_zip_prompt_card()
 
     with st.sidebar:
         st.header("Settings")
         st.subheader("API")
+<<<<<<< HEAD
         provider = st.selectbox("AI Provider", list(PROVIDER_CONFIG.keys()))
         api_key, api_key_source = _configured_api_key(provider)
         model_options = PROVIDER_CONFIG[provider]["models"]
@@ -958,14 +1033,29 @@ def main() -> None:
             st.warning("No live AI key is configured for this provider.")
             st.caption(f"For Codespaces or hosted demos, set one of these server-side secret names: {expected_names}")
         st.caption(PROVIDER_CONFIG[provider].get("provider_note", ""))
+=======
+        provider = st.selectbox("Provider", list(PROVIDER_CONFIG.keys()))
+        api_key = st.text_input("API Key", type="password", key="provider_api_key")
+        model_preset = st.selectbox("Model preset", PROVIDER_CONFIG[provider]["models"], key=f"{provider}_preset")
+        custom_model_name = ""
+        if model_preset == "custom":
+            custom_model_name = st.text_input("Custom model name", key=f"{provider}_custom_model")
+        model = _selected_model(provider, model_preset, custom_model_name)
+        base_url = st.text_input("Base URL", value=PROVIDER_CONFIG[provider]["base_url"])
+        ai_mode = st.radio("AI Mode", ["SafeTestAgents", "Demo Fallback"])
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         if ai_mode == "SafeTestAgents":
             st.caption("SafeTestAgents: Runs real parallel AI agents and attempts disposable Docker sandbox testing with browser evidence.")
         else:
             st.caption("Demo Fallback: Fast demo mode. Uses fallback AI-agent style output only. Sandbox testing and Repair Agent are disabled.")
         st.radio("Context Mode", ["Compressed"], index=0)
+<<<<<<< HEAD
         st.caption(
             f"Selected model: `{_model_label(provider, model)}`. API keys are loaded server-side only and are never shown in the UI."
         )
+=======
+        st.caption(f"Final model: `{model}`. API key stays only in session state.")
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         st.divider()
         st.subheader("Recent Scans This Session")
         if st.button("Clear history", use_container_width=True):
@@ -1001,6 +1091,7 @@ def main() -> None:
 
     st.subheader("Upload Project")
     upload_col, sample_col = st.columns([3, 1])
+<<<<<<< HEAD
     sample_available = SAMPLE_ROOT.exists() and SAMPLE_ROOT.is_dir()
     with upload_col:
         uploaded_file = st.file_uploader("Upload a full project ZIP", type=["zip"])
@@ -1008,6 +1099,12 @@ def main() -> None:
         use_sample = st.button("Use built-in demo", use_container_width=True, disabled=not sample_available)
     if not sample_available:
         st.warning("The built-in demo project is missing from this checkout, so only ZIP upload is available.")
+=======
+    with upload_col:
+        uploaded_file = st.file_uploader("Upload a full project ZIP", type=["zip"])
+    with sample_col:
+        use_sample = st.button("Use sample insecure project", use_container_width=True)
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
     analysis = None
     if use_sample:
@@ -1020,7 +1117,11 @@ def main() -> None:
         analysis = _analyze_sample()
 
     if not analysis:
+<<<<<<< HEAD
         st.info("Upload a ZIP or use the built-in demo project to start the review.")
+=======
+        st.info("Upload a ZIP or use the bundled insecure sample to start the review.")
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         return
 
     dynamic_result = st.session_state["dynamic_cache"].get(analysis["project_hash"])
@@ -1071,11 +1172,18 @@ def main() -> None:
     st.info("This will run 5 specialist agent calls + 1 final reporter call. Secrets are masked. Context is compressed.")
     if analysis["project_hash"] in st.session_state["ai_cache"]:
         st.caption("Cached AI result available for this masked project hash.")
+<<<<<<< HEAD
     can_run_real = ai_mode == "Demo Fallback" or bool(api_key)
     run_ai = st.button(_mode_run_label(ai_mode), type="primary", disabled=not can_run_real)
     if ai_mode == "SafeTestAgents" and not api_key:
         expected_names = ", ".join(_expected_api_key_names(provider))
         st.caption(f"Configure a server-side key to enable SafeTestAgents. Accepted names: {expected_names}.")
+=======
+    can_run_real = ai_mode == "Demo Fallback" or bool(api_key.strip())
+    run_ai = st.button(_mode_run_label(ai_mode), type="primary", disabled=not can_run_real)
+    if ai_mode == "SafeTestAgents" and not api_key.strip():
+        st.caption("Enter an API key to enable SafeTestAgents.")
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
     ai_result = st.session_state["ai_cache"].get(analysis["project_hash"])
     if ai_result:
@@ -1104,7 +1212,11 @@ def main() -> None:
         ):
             status_box.write(message)
         with st.spinner("Running masked parallel agent review..."):
+<<<<<<< HEAD
             ai_result = _run_ai_board(analysis, provider, api_key, model, PROVIDER_CONFIG[provider]["base_url"], ai_mode)
+=======
+            ai_result = _run_ai_board(analysis, provider, api_key, model, _provider_base_url(provider, base_url), ai_mode)
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         completed = ai_result["final_report"].get("agents_completed_count", len(ai_result.get("agent_outputs", [])))
         expected = ai_result["final_report"].get("agents_expected_count", 5)
         incomplete = ai_result["final_report"].get("incomplete_agent_count", 0)
@@ -1112,10 +1224,14 @@ def main() -> None:
     if not ai_result:
         return
 
+<<<<<<< HEAD
     st.caption(
         f"Provider: {ai_result['provider']} | Model: {_model_label(ai_result['provider'], ai_result['model'])} | Mode: {ai_result['ai_mode']}"
         + (" | Using cached result" if ai_result["cached"] else "")
     )
+=======
+    st.caption(f"Provider: {ai_result['provider']} | Model: {ai_result['model']} | Mode: {ai_result['ai_mode']}" + (" | Using cached result" if ai_result["cached"] else ""))
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
     report = ai_result["final_report"]
     st.subheader("Final Reporter")

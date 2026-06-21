@@ -118,6 +118,7 @@ Streamlit also prints a local URL and usually a network URL in the terminal.
 streamlit run app.py
 ```
 
+<<<<<<< HEAD
 ## Local `.env` Setup
 
 For local VS Code use, keep your API key in one place:
@@ -156,20 +157,29 @@ Important notes:
 - Anyone with a public Codespaces link can use the app while the codespace is running.
 - `Demo Fallback` is the safest shared mode if you do not want live AI usage.
 
+=======
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 ## How To Use The App
 
 1. Start Docker Desktop if you want `SafeTestAgents` runtime sandbox testing.
 2. Start the app with `streamlit run app.py`.
 3. Open the Streamlit URL, usually `http://localhost:8501`.
+<<<<<<< HEAD
 4. Upload a project ZIP or click `Use built-in demo`.
 5. Review the extraction summary, detected stack, masking status, and deterministic rule findings.
 6. In the sidebar under `Settings` and `API`, choose a provider. Live AI review now reads its API key from server-side secrets or environment variables only.
+=======
+4. Upload a project ZIP or click `Use sample insecure project`.
+5. Review the extraction summary, detected stack, masking status, and deterministic rule findings.
+6. In the sidebar under `Settings` and `API`, choose a provider and enter an API key only if you want live AI review.
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 7. Choose `SafeTestAgents` for the full AI plus sandbox flow, or `Demo Fallback` if Docker is unavailable.
 8. Click the run button for the selected mode.
 9. Review the Streamlit results, runtime evidence, screenshots, HTML report, and Markdown report.
 
 ## Sample Test Projects
 
+<<<<<<< HEAD
 Judge-friendly sample ZIPs are provided in [`demo_inputs/`](./demo_inputs):
 
 - `demo_inputs/fittrack_ai_vibecode.zip`
@@ -178,12 +188,27 @@ Judge-friendly sample ZIPs are provided in [`demo_inputs/`](./demo_inputs):
 These are intentionally vulnerable demo targets for defensive local testing. They use fake secrets only and are safe to upload into InfraRed AI.
 
 You can also use the built-in demo button inside the UI, which uses the unpacked `demo_inputs/fittrack_ai_vibecode` project when it is present in the repo.
+=======
+Judge-friendly sample ZIPs are provided in [`sample_projects/`](./sample_projects):
+
+- `sample_projects/fitness.zip`
+- `sample_projects/meal_prep.zip`
+
+These are intentionally vulnerable demo targets for defensive local testing. They use fake secrets only and are safe to upload into InfraRed AI.
+
+You can also use the bundled sample app button inside the UI, but the ZIPs above are the recommended judge flow because they match a direct upload scenario.
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 ## How To Test With Included Sample ZIP Projects
 
 1. Start the app locally.
+<<<<<<< HEAD
 2. Upload `demo_inputs/fittrack_ai_vibecode.zip` for the FitTrack-style fitness demo flow.
 3. Upload `demo_inputs/meal-prep-ai-demo.zip` for the second judge-facing demo flow.
+=======
+2. Upload `sample_projects/fitness.zip` for the FitTrack-style fitness demo flow.
+3. Upload `sample_projects/meal_prep.zip` for the second judge-facing demo flow.
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 4. Run the static scan and review the findings.
 5. Use `SafeTestAgents` if Docker Desktop is running and Playwright Chromium is installed.
 6. Use `Demo Fallback` if Docker is unavailable.
@@ -197,7 +222,11 @@ You can also use the built-in demo button inside the UI, which uses the unpacked
 4. Install Playwright Chromium.
 5. Start Docker Desktop.
 6. Run `streamlit run app.py`.
+<<<<<<< HEAD
 7. Upload `demo_inputs/fittrack_ai_vibecode.zip` or `demo_inputs/meal-prep-ai-demo.zip`.
+=======
+7. Upload `sample_projects/fitness.zip` or `sample_projects/meal_prep.zip`.
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 8. Run the scan.
 9. Review Streamlit results, screenshots, HTML report, and Markdown report.
 10. Use Demo Fallback mode if Docker is unavailable.
@@ -205,9 +234,15 @@ You can also use the built-in demo button inside the UI, which uses the unpacked
 
 ## Provider Notes
 
+<<<<<<< HEAD
 - `OpenAI` uses OpenAI directly from the backend.
 - `Optimized Model` uses the FastRouter backend from the server side.
 - Base URLs are intentionally hidden from app users.
+=======
+- `OpenAI` default base URL: `https://api.openai.com/v1`
+- `FastRouter` default base URL: `https://openrouter.ai/api/v1`
+- `Custom OpenAI-compatible` lets you provide your own base URL and model
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 ## What Is Sent To AI
 
@@ -248,7 +283,11 @@ You can also use the built-in demo button inside the UI, which uses the unpacked
 
 ### API review is unavailable
 
+<<<<<<< HEAD
 - Make sure a server-side secret or environment variable is configured for the selected provider.
+=======
+- The API key field is for local/demo testing only.
+>>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 - Make sure you selected the correct provider and model.
 - You can still use static scan and `Demo Fallback` without a live API key.
 
