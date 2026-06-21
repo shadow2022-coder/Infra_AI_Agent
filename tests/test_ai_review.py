@@ -1,10 +1,11 @@
 import unittest
 import zipfile
 from io import BytesIO
+import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from app import make_safe_report_base_name
+from app import SAMPLE_ROOT, _load_local_env_files, make_safe_report_base_name
 from core.agent_runner import normalize_agent_output
 from core.repair_agent import run_deterministic_repair, should_attempt_repair
 from core.report_renderer import render_fix_brief_markdown, render_report_html
@@ -56,6 +57,41 @@ class AIReviewTests(unittest.TestCase):
     def test_filename_safety(self):
         self.assertEqual(make_safe_report_base_name("My Cool App.zip"), "My_Cool_App")
         self.assertEqual(make_safe_report_base_name("../../secret.zip"), "secret")
+
+    def test_local_env_loader_reads_dotenv_values(self):
+        env_name = "INFRARED_TEST_ONLY_KEY"
+        original = os.environ.pop(env_name, None)
+        try:
+            with TemporaryDirectory() as tmp_dir:
+                env_path = Path(tmp_dir) / ".env"
+                env_path.write_text('export INFRARED_TEST_ONLY_KEY="demo-value"\n', encoding="utf-8")
+                loaded = _load_local_env_files([env_path])
+                self.assertEqual(os.environ.get(env_name), "demo-value")
+                self.assertEqual(loaded.get(env_name), ".env")
+        finally:
+            os.environ.pop(env_name, None)
+            if original is not None:
+                os.environ[env_name] = original
+
+    def test_local_env_loader_does_not_override_existing_env(self):
+        env_name = "INFRARED_TEST_PRIORITY_KEY"
+        original = os.environ.get(env_name)
+        os.environ[env_name] = "already-set"
+        try:
+            with TemporaryDirectory() as tmp_dir:
+                env_path = Path(tmp_dir) / ".env"
+                env_path.write_text("INFRARED_TEST_PRIORITY_KEY=from-dotenv\n", encoding="utf-8")
+                _load_local_env_files([env_path])
+                self.assertEqual(os.environ.get(env_name), "already-set")
+        finally:
+            if original is None:
+                os.environ.pop(env_name, None)
+            else:
+                os.environ[env_name] = original
+
+    def test_built_in_sample_root_exists(self):
+        self.assertTrue(SAMPLE_ROOT.exists())
+        self.assertTrue(SAMPLE_ROOT.is_dir())
 
     def test_docker_rule_can_be_not_applicable(self):
         scan = {"raw_contents": {"app/package.json": "{}"}}

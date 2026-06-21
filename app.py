@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from datetime import datetime as dt
 from pathlib import Path
@@ -23,46 +24,180 @@ from core.stack_detector import detect_stack
 from core.zip_loader import extract_zip_bytes
 
 ROOT = Path(__file__).parent
-SAMPLE_ROOT = ROOT / "sample_project" / "insecure_next_supabase_app"
 TEMPLATE_PATH = ROOT / "templates" / "report_template.html"
 ZIP_PROMPT = """Create a small demo web application ZIP for defensive security scanner testing.
 
+Goal:
+Generate a DIFFERENT usable demo application each time. Do not repeat the same theme unless I ask. Pick one practical app idea with UI, for example: meal prep planner, fitness tracker, budget tracker, habit tracker, task manager, travel planner, study planner, invoice tool, event planner, inventory tracker, recipe finder, job application tracker, or similar.
+
 Requirements:
 
-* Make it a simple Node/Express, Python/FastAPI, or Next.js app.
-* Include a README.md with exact local run command.
-* Include package.json or requirements.txt.
-* Include a Dockerfile.
+1. Tech stack:
+
+* Use one of these only: Node/Express, Python/FastAPI, or Next.js.
+* Keep it small and easy to run.
 * App must run locally on one port.
 * Print the port clearly at startup.
-* Add a health route: /api/health or /health.
-* Add 3 to 5 intentional but safe demo security issues:
+* Include a health route: `/health` or `/api/health`.
 
-  1. committed .env with fake API key only
-  2. wildcard CORS
-  3. missing security headers
-  4. visible fake frontend env value
-  5. unprotected /admin or /debug route
-* Use fake secrets only. Never use real keys.
-* Do not include malware, destructive code, crypto miners, reverse shells, scanners, brute force, or external attack behavior.
+2. Files to include:
+
+* `README.md` with exact local run command.
+* `package.json` or `requirements.txt`.
+* `Dockerfile`.
+* `.env` file with fake demo secrets only.
+* App source code.
+* Basic UI assets/images if useful.
+* Output as a ZIP file.
+
+3. App quality:
+
+* Make it feel like a real usable MVP, not a blank toy app.
+* Include a clean UI.
+* Include sample data.
+* Include at least 3 working user flows.
 * Do not call real third-party APIs.
-* Keep the project small and easy to run.
-* Output a ZIP file."""
+* Any “AI” or “internet” feature must be mocked locally with fake/sample responses.
+
+4. Intentional safe demo security issues:
+   Add 3 to 5 intentional but safe security issues from this list:
+
+* committed `.env` with fake API key only
+* wildcard CORS
+* missing security headers
+* visible fake frontend env value
+* unprotected `/admin` route
+* unprotected `/debug` route
+* verbose error messages
+* fake exposed internal config endpoint
+* insecure demo cookie flag
+* client-side-only fake auth
+
+Important:
+
+* Use fake secrets only.
+* Clearly label fake/demo secrets.
+* Never include real API keys.
+* Do not include malware, destructive code, crypto miners, reverse shells, scanners, brute force, exploit code, credential theft, persistence, or external attack behavior.
+* Do not make network calls to real third-party services.
+* This is only for testing a defensive security scanner.
+
+5. README requirements:
+   The README must include:
+
+* Project name and theme.
+* What the app does.
+* Exact local run commands.
+* Docker run commands.
+* Port number.
+* Health endpoint.
+* List of intentional safe demo security issues.
+* Clear warning that all secrets are fake and the app is intentionally insecure for scanner testing.
+
+6. Final output:
+
+* Create the project folder.
+* Verify it runs or at least syntax-check the code.
+* Zip the folder.
+* Give me the ZIP file.
+"""
 
 PROVIDER_CONFIG = {
     "OpenAI": {
         "base_url": "https://api.openai.com/v1",
-        "models": ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4.1", "gpt-4o", "custom"],
+        "models": [
+            {"label": "GPT-4.1 Mini", "value": "gpt-4.1-mini"},
+            {"label": "GPT-4o Mini", "value": "gpt-4o-mini"},
+            {"label": "GPT-4.1", "value": "gpt-4.1"},
+            {"label": "GPT-4o", "value": "gpt-4o"},
+        ],
+        "provider_note": "Uses OpenAI directly from the backend.",
     },
-    "FastRouter": {
+    "Optimized Model": {
         "base_url": "https://openrouter.ai/api/v1",
-        "models": ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "google/gemini-1.5-pro", "custom"],
-    },
-    "Custom OpenAI-compatible": {
-        "base_url": "https://api.openai.com/v1",
-        "models": ["custom"],
+        "models": [
+            {"label": "Claude 4.6 Sonnet", "value": "anthropic/claude-4.6-sonnet"},
+        ],
+        "provider_note": "Uses the FastRouter backend with a FastRouter-compatible API key.",
     },
 }
+
+API_KEY_CANDIDATES = {
+    "OpenAI": ["INFRARED_OPENAI_API_KEY", "OPENAI_API_KEY", "INFRARED_API_KEY"],
+    "Optimized Model": ["INFRARED_FASTROUTER_API_KEY", "OPENROUTER_API_KEY", "FASTROUTER_API_KEY", "INFRARED_API_KEY"],
+}
+
+
+def _resolve_sample_root() -> Path:
+    candidates = [
+        ROOT / "sample_project" / "insecure_next_supabase_app",
+        ROOT / "demo_inputs" / "fittrack_ai_vibecode",
+    ]
+    for candidate in candidates:
+        if candidate.exists() and candidate.is_dir():
+            return candidate
+    return candidates[0]
+
+
+SAMPLE_ROOT = _resolve_sample_root()
+
+
+def _load_local_env_files(paths: Optional[list[Path]] = None) -> dict[str, str]:
+    loaded: dict[str, str] = {}
+    env_paths = paths or [ROOT / ".env", ROOT / ".env.local"]
+    for path in env_paths:
+        if not path.exists() or not path.is_file():
+            continue
+        for raw_line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("export "):
+                line = line[len("export ") :].strip()
+            if "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            key = key.strip()
+            value = value.strip()
+            if not key:
+                continue
+            if value and value[0] in {"'", '"'} and value[-1:] == value[0]:
+                value = value[1:-1]
+            elif " #" in value:
+                value = value.split(" #", 1)[0].rstrip()
+            if key not in os.environ:
+                os.environ[key] = value
+                loaded[key] = path.name
+    return loaded
+
+
+LOCAL_ENV_SOURCES = _load_local_env_files()
+
+
+def _secret_value(name: str) -> str:
+    try:
+        value = st.secrets.get(name, "")
+    except Exception:
+        value = ""
+    return str(value).strip() if value else ""
+
+
+def _expected_api_key_names(provider: str) -> list[str]:
+    return list(API_KEY_CANDIDATES.get(provider, API_KEY_CANDIDATES["Optimized Model"]))
+
+
+def _configured_api_key(provider: str) -> tuple[str, str]:
+    for name in _expected_api_key_names(provider):
+        value = _secret_value(name)
+        if value:
+            return value, f"Streamlit secret `{name}`"
+    for name in _expected_api_key_names(provider):
+        value = os.environ.get(name, "").strip()
+        if value:
+            if name in LOCAL_ENV_SOURCES:
+                return value, f"`{LOCAL_ENV_SOURCES[name]}` entry `{name}`"
+            return value, f"environment variable `{name}`"
+    return "", ""
 
 
 def _dynamic_disabled_result(mode: str) -> dict:
@@ -155,17 +290,22 @@ def _analyze_uploaded_file(uploaded_file) -> dict:
 
 
 def _analyze_sample() -> dict:
-    return _analyze_root(SAMPLE_ROOT, "insecure_next_supabase_app", "sample")
+    return _analyze_root(SAMPLE_ROOT, SAMPLE_ROOT.name, "sample")
 
 
-def _provider_base_url(provider: str, base_url_input: str) -> str:
-    return base_url_input.strip() or PROVIDER_CONFIG[provider]["base_url"]
+def _selected_model(provider: str, preset: str) -> str:
+    model_options = PROVIDER_CONFIG[provider]["models"]
+    for option in model_options:
+        if option["value"] == preset:
+            return option["value"]
+    return model_options[0]["value"]
 
 
-def _selected_model(provider: str, preset: str, custom_name: str) -> str:
-    if preset != "custom":
-        return preset
-    return custom_name.strip() or PROVIDER_CONFIG[provider]["models"][0]
+def _model_label(provider: str, model_value: str) -> str:
+    for option in PROVIDER_CONFIG[provider]["models"]:
+        if option["value"] == model_value:
+            return option["label"]
+    return model_value
 
 
 def _render_badges(badges: list[str]) -> None:
@@ -284,8 +424,8 @@ def _render_mvp_notice() -> None:
     notice_col, dismiss_col = st.columns([12, 1])
     with notice_col:
         st.info(
-            "This is an MVP demo of InfraRed AI. The API key field is included only for local/demo testing "
-            "and is available in the Settings/API section. Do not commit real secrets. Close this message to continue."
+            "This is an MVP demo of InfraRed AI. In this share-safe build, live AI keys load only from server-side "
+            "secrets or environment variables and are never entered in the UI. Do not commit real secrets."
         )
     with dismiss_col:
         if st.button("X", key="dismiss_mvp_notice", help="Dismiss this MVP notice"):
@@ -448,7 +588,7 @@ def _run_ai_board(analysis: dict, provider: str, api_key: str, model: str, base_
             st.session_state["ai_cache"].pop(analysis["project_hash"], None)
     dynamic_summary = _dynamic_summary_for_ai(dynamic_result)
     safe_base = make_safe_report_base_name(
-        analysis["source_name"] if analysis["source_type"] == "upload" else "sample_project",
+        analysis["source_name"] if analysis["source_type"] == "upload" else SAMPLE_ROOT.name,
         fallback="infrared_scan",
     )
     html_filename = f"{safe_base}_report.html"
@@ -792,29 +932,40 @@ def main() -> None:
     st.set_page_config(page_title="InfraRed AI", page_icon=":shield:", layout="wide")
     _init_state()
 
-    st.title("Upload your AI-generated app before deployment.")
-    st.caption("Simple first. Technical details second. Deep evidence only inside expanders.")
+    st.title("Review an AI-built app before you ship it.")
+    st.caption("Start with the decision, then open the technical evidence only when you need it.")
     _render_mvp_notice()
     _render_zip_prompt_card()
 
     with st.sidebar:
         st.header("Settings")
         st.subheader("API")
-        provider = st.selectbox("Provider", list(PROVIDER_CONFIG.keys()))
-        api_key = st.text_input("API Key", type="password", key="provider_api_key")
-        model_preset = st.selectbox("Model preset", PROVIDER_CONFIG[provider]["models"], key=f"{provider}_preset")
-        custom_model_name = ""
-        if model_preset == "custom":
-            custom_model_name = st.text_input("Custom model name", key=f"{provider}_custom_model")
-        model = _selected_model(provider, model_preset, custom_model_name)
-        base_url = st.text_input("Base URL", value=PROVIDER_CONFIG[provider]["base_url"])
+        provider = st.selectbox("AI Provider", list(PROVIDER_CONFIG.keys()))
+        api_key, api_key_source = _configured_api_key(provider)
+        model_options = PROVIDER_CONFIG[provider]["models"]
+        model_preset = st.selectbox(
+            "Model",
+            [option["value"] for option in model_options],
+            key=f"{provider}_preset",
+            format_func=lambda value: _model_label(provider, value),
+        )
+        model = _selected_model(provider, model_preset)
         ai_mode = st.radio("AI Mode", ["SafeTestAgents", "Demo Fallback"])
+        if api_key:
+            st.success(f"Live AI key loaded from {api_key_source}. The key is hidden from all app users.")
+        else:
+            expected_names = ", ".join(f"`{name}`" for name in _expected_api_key_names(provider))
+            st.warning("No live AI key is configured for this provider.")
+            st.caption(f"For Codespaces or hosted demos, set one of these server-side secret names: {expected_names}")
+        st.caption(PROVIDER_CONFIG[provider].get("provider_note", ""))
         if ai_mode == "SafeTestAgents":
             st.caption("SafeTestAgents: Runs real parallel AI agents and attempts disposable Docker sandbox testing with browser evidence.")
         else:
             st.caption("Demo Fallback: Fast demo mode. Uses fallback AI-agent style output only. Sandbox testing and Repair Agent are disabled.")
         st.radio("Context Mode", ["Compressed"], index=0)
-        st.caption(f"Final model: `{model}`. API key stays only in session state.")
+        st.caption(
+            f"Selected model: `{_model_label(provider, model)}`. API keys are loaded server-side only and are never shown in the UI."
+        )
         st.divider()
         st.subheader("Recent Scans This Session")
         if st.button("Clear history", use_container_width=True):
@@ -850,10 +1001,13 @@ def main() -> None:
 
     st.subheader("Upload Project")
     upload_col, sample_col = st.columns([3, 1])
+    sample_available = SAMPLE_ROOT.exists() and SAMPLE_ROOT.is_dir()
     with upload_col:
         uploaded_file = st.file_uploader("Upload a full project ZIP", type=["zip"])
     with sample_col:
-        use_sample = st.button("Use sample insecure project", use_container_width=True)
+        use_sample = st.button("Use built-in demo", use_container_width=True, disabled=not sample_available)
+    if not sample_available:
+        st.warning("The built-in demo project is missing from this checkout, so only ZIP upload is available.")
 
     analysis = None
     if use_sample:
@@ -866,7 +1020,7 @@ def main() -> None:
         analysis = _analyze_sample()
 
     if not analysis:
-        st.info("Upload a ZIP or use the bundled insecure sample to start the review.")
+        st.info("Upload a ZIP or use the built-in demo project to start the review.")
         return
 
     dynamic_result = st.session_state["dynamic_cache"].get(analysis["project_hash"])
@@ -917,10 +1071,11 @@ def main() -> None:
     st.info("This will run 5 specialist agent calls + 1 final reporter call. Secrets are masked. Context is compressed.")
     if analysis["project_hash"] in st.session_state["ai_cache"]:
         st.caption("Cached AI result available for this masked project hash.")
-    can_run_real = ai_mode == "Demo Fallback" or bool(api_key.strip())
+    can_run_real = ai_mode == "Demo Fallback" or bool(api_key)
     run_ai = st.button(_mode_run_label(ai_mode), type="primary", disabled=not can_run_real)
-    if ai_mode == "SafeTestAgents" and not api_key.strip():
-        st.caption("Enter an API key to enable SafeTestAgents.")
+    if ai_mode == "SafeTestAgents" and not api_key:
+        expected_names = ", ".join(_expected_api_key_names(provider))
+        st.caption(f"Configure a server-side key to enable SafeTestAgents. Accepted names: {expected_names}.")
 
     ai_result = st.session_state["ai_cache"].get(analysis["project_hash"])
     if ai_result:
@@ -949,7 +1104,7 @@ def main() -> None:
         ):
             status_box.write(message)
         with st.spinner("Running masked parallel agent review..."):
-            ai_result = _run_ai_board(analysis, provider, api_key, model, _provider_base_url(provider, base_url), ai_mode)
+            ai_result = _run_ai_board(analysis, provider, api_key, model, PROVIDER_CONFIG[provider]["base_url"], ai_mode)
         completed = ai_result["final_report"].get("agents_completed_count", len(ai_result.get("agent_outputs", [])))
         expected = ai_result["final_report"].get("agents_expected_count", 5)
         incomplete = ai_result["final_report"].get("incomplete_agent_count", 0)
@@ -957,7 +1112,10 @@ def main() -> None:
     if not ai_result:
         return
 
-    st.caption(f"Provider: {ai_result['provider']} | Model: {ai_result['model']} | Mode: {ai_result['ai_mode']}" + (" | Using cached result" if ai_result["cached"] else ""))
+    st.caption(
+        f"Provider: {ai_result['provider']} | Model: {_model_label(ai_result['provider'], ai_result['model'])} | Mode: {ai_result['ai_mode']}"
+        + (" | Using cached result" if ai_result["cached"] else "")
+    )
 
     report = ai_result["final_report"]
     st.subheader("Final Reporter")
