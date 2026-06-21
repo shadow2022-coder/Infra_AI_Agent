@@ -5,7 +5,7 @@ InfraRed AI is a Streamlit MVP/demo for reviewing AI-generated application proje
 ## Live Demo
 
 Temporary public demo:
-[Open InfraRed AI Demo](https://your-codespaces-or-forwarded-link)
+[Open InfraRed AI Demo] (https://zany-eureka-v4j54jwrxp9fx7xg-8501.app.github.dev/)
 
 Note:
 - This is a temporary Codespaces-hosted demo link.
