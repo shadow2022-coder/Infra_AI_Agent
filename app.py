@@ -2,10 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-<<<<<<< HEAD
 import os
-=======
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 import re
 from datetime import datetime as dt
 from pathlib import Path
@@ -27,7 +24,6 @@ from core.stack_detector import detect_stack
 from core.zip_loader import extract_zip_bytes
 
 ROOT = Path(__file__).parent
-<<<<<<< HEAD
 TEMPLATE_PATH = ROOT / "templates" / "report_template.html"
 ZIP_PROMPT = """Create a small demo web application ZIP for defensive security scanner testing.
 
@@ -105,38 +101,10 @@ Important:
 * Zip the folder.
 * Give me the ZIP file.
 """
-=======
-SAMPLE_ROOT = ROOT / "sample_project" / "insecure_next_supabase_app"
-TEMPLATE_PATH = ROOT / "templates" / "report_template.html"
-ZIP_PROMPT = """Create a small demo web application ZIP for defensive security scanner testing.
-
-Requirements:
-
-* Make it a simple Node/Express, Python/FastAPI, or Next.js app.
-* Include a README.md with exact local run command.
-* Include package.json or requirements.txt.
-* Include a Dockerfile.
-* App must run locally on one port.
-* Print the port clearly at startup.
-* Add a health route: /api/health or /health.
-* Add 3 to 5 intentional but safe demo security issues:
-
-  1. committed .env with fake API key only
-  2. wildcard CORS
-  3. missing security headers
-  4. visible fake frontend env value
-  5. unprotected /admin or /debug route
-* Use fake secrets only. Never use real keys.
-* Do not include malware, destructive code, crypto miners, reverse shells, scanners, brute force, or external attack behavior.
-* Do not call real third-party APIs.
-* Keep the project small and easy to run.
-* Output a ZIP file."""
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 PROVIDER_CONFIG = {
     "OpenAI": {
         "base_url": "https://api.openai.com/v1",
-<<<<<<< HEAD
         "models": [
             {"label": "GPT-4.1 Mini", "value": "gpt-4.1-mini"},
             {"label": "GPT-4o Mini", "value": "gpt-4o-mini"},
@@ -231,20 +199,6 @@ def _configured_api_key(provider: str) -> tuple[str, str]:
             return value, f"environment variable `{name}`"
     return "", ""
 
-=======
-        "models": ["gpt-4.1-mini", "gpt-4o-mini", "gpt-4.1", "gpt-4o", "custom"],
-    },
-    "FastRouter": {
-        "base_url": "https://openrouter.ai/api/v1",
-        "models": ["openai/gpt-4.1-mini", "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet", "google/gemini-1.5-pro", "custom"],
-    },
-    "Custom OpenAI-compatible": {
-        "base_url": "https://api.openai.com/v1",
-        "models": ["custom"],
-    },
-}
-
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 def _dynamic_disabled_result(mode: str) -> dict:
     return {
@@ -336,7 +290,6 @@ def _analyze_uploaded_file(uploaded_file) -> dict:
 
 
 def _analyze_sample() -> dict:
-<<<<<<< HEAD
     return _analyze_root(SAMPLE_ROOT, SAMPLE_ROOT.name, "sample")
 
 
@@ -353,19 +306,6 @@ def _model_label(provider: str, model_value: str) -> str:
         if option["value"] == model_value:
             return option["label"]
     return model_value
-=======
-    return _analyze_root(SAMPLE_ROOT, "insecure_next_supabase_app", "sample")
-
-
-def _provider_base_url(provider: str, base_url_input: str) -> str:
-    return base_url_input.strip() or PROVIDER_CONFIG[provider]["base_url"]
-
-
-def _selected_model(provider: str, preset: str, custom_name: str) -> str:
-    if preset != "custom":
-        return preset
-    return custom_name.strip() or PROVIDER_CONFIG[provider]["models"][0]
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
 
 def _render_badges(badges: list[str]) -> None:
@@ -484,13 +424,8 @@ def _render_mvp_notice() -> None:
     notice_col, dismiss_col = st.columns([12, 1])
     with notice_col:
         st.info(
-<<<<<<< HEAD
             "This is an MVP demo of InfraRed AI. In this share-safe build, live AI keys load only from server-side "
             "secrets or environment variables and are never entered in the UI. Do not commit real secrets."
-=======
-            "This is an MVP demo of InfraRed AI. The API key field is included only for local/demo testing "
-            "and is available in the Settings/API section. Do not commit real secrets. Close this message to continue."
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         )
     with dismiss_col:
         if st.button("X", key="dismiss_mvp_notice", help="Dismiss this MVP notice"):
@@ -588,13 +523,95 @@ def _mode_run_label(ai_mode: str) -> str:
     return "Run SafeTestAgents Review" if ai_mode == "SafeTestAgents" else "Run Demo Fallback Review"
 
 
-def _render_zip_prompt_card() -> None:
-    with st.container(border=True):
-        st.subheader("Need a test project ZIP?")
-        st.write("Generate a small Claude/Cursor/Replit test ZIP, then upload it here.")
-        with st.expander("Open test-project prompt"):
-            st.code(ZIP_PROMPT, language="text")
+def _render_landing_styles() -> None:
+    st.markdown(
+        """
+        <style>
+        .infra-hero {
+            max-width: 860px;
+            margin: 1.5rem auto 1rem auto;
+            text-align: center;
+        }
+        .infra-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.45rem 0.8rem;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            font-size: 0.85rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #d7dfef;
+        }
+        .infra-hero h1 {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            line-height: 0.94;
+            letter-spacing: -0.045em;
+            margin: 1rem 0 1rem 0;
+            font-weight: 800;
+        }
+        .infra-hero p {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.72);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .infra-upload-card {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            background:
+                radial-gradient(circle at top left, rgba(255,107,122,0.14), transparent 32%),
+                radial-gradient(circle at top right, rgba(98,207,136,0.12), transparent 28%),
+                rgba(255,255,255,0.03);
+            padding: 1.15rem 1.15rem 0.35rem 1.15rem;
+            margin-top: 1.2rem;
+        }
+        .infra-side-card {
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 22px;
+            background: rgba(255,255,255,0.03);
+            padding: 1rem 1rem 0.3rem 1rem;
+            margin-top: 2rem;
+        }
+        .infra-mini-label {
+            color: rgba(255,255,255,0.68);
+            font-size: 0.84rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.45rem;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_landing_hero() -> None:
+    st.markdown(
+        """
+        <div class="infra-hero">
+          <div class="infra-badge">InfraRed AI</div>
+          <h1>Ship AI-built apps with evidence.</h1>
+          <p>Review generated software before deployment with deterministic checks, specialist AI review, and optional sandbox validation in one clear flow.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _render_zip_prompt_toggle() -> None:
+    st.markdown('<div class="infra-side-card">', unsafe_allow_html=True)
+    st.markdown('<div class="infra-mini-label">Builder Prompt</div>', unsafe_allow_html=True)
+    st.markdown("**Need a test project ZIP?**")
+    st.caption("Generate a small demo project in Claude, Cursor, or Replit, then upload it here.")
+    show_prompt = st.toggle("Show test-project prompt", key="show_test_project_prompt")
+    if show_prompt:
+        st.code(ZIP_PROMPT, language="text")
         st.caption("Copy prompt -> generate ZIP in your AI coding tool -> upload ZIP here.")
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def _refresh_cached_ai_result(analysis: dict, dynamic_result: dict) -> None:
@@ -653,11 +670,7 @@ def _run_ai_board(analysis: dict, provider: str, api_key: str, model: str, base_
             st.session_state["ai_cache"].pop(analysis["project_hash"], None)
     dynamic_summary = _dynamic_summary_for_ai(dynamic_result)
     safe_base = make_safe_report_base_name(
-<<<<<<< HEAD
         analysis["source_name"] if analysis["source_type"] == "upload" else SAMPLE_ROOT.name,
-=======
-        analysis["source_name"] if analysis["source_type"] == "upload" else "sample_project",
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         fallback="infrared_scan",
     )
     html_filename = f"{safe_base}_report.html"
@@ -1000,21 +1013,13 @@ def _render_dynamic_testing(dynamic_result: Optional[dict], enabled: bool = Fals
 def main() -> None:
     st.set_page_config(page_title="InfraRed AI", page_icon=":shield:", layout="wide")
     _init_state()
+    _render_landing_styles()
 
-<<<<<<< HEAD
-    st.title("Review an AI-built app before you ship it.")
-    st.caption("Start with the decision, then open the technical evidence only when you need it.")
-=======
-    st.title("Upload your AI-generated app before deployment.")
-    st.caption("Simple first. Technical details second. Deep evidence only inside expanders.")
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
-    _render_mvp_notice()
-    _render_zip_prompt_card()
+    _render_landing_hero()
 
     with st.sidebar:
         st.header("Settings")
         st.subheader("API")
-<<<<<<< HEAD
         provider = st.selectbox("AI Provider", list(PROVIDER_CONFIG.keys()))
         api_key, api_key_source = _configured_api_key(provider)
         model_options = PROVIDER_CONFIG[provider]["models"]
@@ -1033,29 +1038,14 @@ def main() -> None:
             st.warning("No live AI key is configured for this provider.")
             st.caption(f"For Codespaces or hosted demos, set one of these server-side secret names: {expected_names}")
         st.caption(PROVIDER_CONFIG[provider].get("provider_note", ""))
-=======
-        provider = st.selectbox("Provider", list(PROVIDER_CONFIG.keys()))
-        api_key = st.text_input("API Key", type="password", key="provider_api_key")
-        model_preset = st.selectbox("Model preset", PROVIDER_CONFIG[provider]["models"], key=f"{provider}_preset")
-        custom_model_name = ""
-        if model_preset == "custom":
-            custom_model_name = st.text_input("Custom model name", key=f"{provider}_custom_model")
-        model = _selected_model(provider, model_preset, custom_model_name)
-        base_url = st.text_input("Base URL", value=PROVIDER_CONFIG[provider]["base_url"])
-        ai_mode = st.radio("AI Mode", ["SafeTestAgents", "Demo Fallback"])
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         if ai_mode == "SafeTestAgents":
             st.caption("SafeTestAgents: Runs real parallel AI agents and attempts disposable Docker sandbox testing with browser evidence.")
         else:
             st.caption("Demo Fallback: Fast demo mode. Uses fallback AI-agent style output only. Sandbox testing and Repair Agent are disabled.")
         st.radio("Context Mode", ["Compressed"], index=0)
-<<<<<<< HEAD
         st.caption(
             f"Selected model: `{_model_label(provider, model)}`. API keys are loaded server-side only and are never shown in the UI."
         )
-=======
-        st.caption(f"Final model: `{model}`. API key stays only in session state.")
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         st.divider()
         st.subheader("Recent Scans This Session")
         if st.button("Clear history", use_container_width=True):
@@ -1089,22 +1079,23 @@ def main() -> None:
                 for risk in item["top_risks"]:
                     st.caption(f"{risk['severity']}: {risk['title']}")
 
-    st.subheader("Upload Project")
-    upload_col, sample_col = st.columns([3, 1])
-<<<<<<< HEAD
+    landing_left, landing_center, landing_right = st.columns([0.25, 2.1, 0.95])
     sample_available = SAMPLE_ROOT.exists() and SAMPLE_ROOT.is_dir()
-    with upload_col:
-        uploaded_file = st.file_uploader("Upload a full project ZIP", type=["zip"])
-    with sample_col:
-        use_sample = st.button("Use built-in demo", use_container_width=True, disabled=not sample_available)
-    if not sample_available:
-        st.warning("The built-in demo project is missing from this checkout, so only ZIP upload is available.")
-=======
-    with upload_col:
-        uploaded_file = st.file_uploader("Upload a full project ZIP", type=["zip"])
-    with sample_col:
-        use_sample = st.button("Use sample insecure project", use_container_width=True)
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
+    with landing_center:
+        st.markdown('<div class="infra-upload-card">', unsafe_allow_html=True)
+        st.markdown("#### Start a review")
+        st.caption("Upload a project ZIP or run the built-in demo project.")
+        uploaded_file = st.file_uploader("Upload a full project ZIP", type=["zip"], label_visibility="collapsed")
+        action_left, action_right = st.columns([1.7, 1])
+        with action_left:
+            st.caption("ZIP only. The project is filtered and masked before deeper review.")
+        with action_right:
+            use_sample = st.button("Use built-in demo", use_container_width=True, disabled=not sample_available)
+        if not sample_available:
+            st.caption("Built-in demo is unavailable in this checkout, so upload mode only is enabled.")
+        st.markdown("</div>", unsafe_allow_html=True)
+    with landing_right:
+        _render_zip_prompt_toggle()
 
     analysis = None
     if use_sample:
@@ -1117,11 +1108,7 @@ def main() -> None:
         analysis = _analyze_sample()
 
     if not analysis:
-<<<<<<< HEAD
-        st.info("Upload a ZIP or use the built-in demo project to start the review.")
-=======
-        st.info("Upload a ZIP or use the bundled insecure sample to start the review.")
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
+        st.caption("Choose a project source, then run the review when you're ready.")
         return
 
     dynamic_result = st.session_state["dynamic_cache"].get(analysis["project_hash"])
@@ -1130,60 +1117,24 @@ def main() -> None:
     masking = analysis["masking"]
     rules = analysis["rules"]
 
-    st.subheader("File Extraction Summary")
+    st.subheader("Ready To Review")
     a, b, c = st.columns(3)
     a.metric("Files discovered", len(scan["all_files"]))
     b.metric("Files scanned", scan["scanned_file_count"])
-    c.metric("Junk ignored", len(scan["ignored_files"]))
+    c.metric("Secrets masked", masking["masked_file_count"])
     st.caption(f"Source: {analysis['source_name']} ({analysis['source_type']})")
-    with st.expander("Useful files detected"):
-        st.write(scan["useful_files"][:40])
-
-    st.subheader("Detected Stack")
-    _render_badges(analysis["stack"]["badges"])
-
-    st.subheader("Secret Masking Status")
-    st.success(f"Masking active. {masking['masked_file_count']} file(s) had secrets or sensitive tokens masked before display, reporting, or AI context assembly.")
-
-    st.subheader("Rule-Based Security Tests")
-    d, e, f, g, h = st.columns(5)
-    applicable_issues = [item for item in rules["results"] if item["status"] in {"fail", "review"}]
-    passed_rules = [item for item in rules["results"] if item["status"] == "pass"]
-    not_used_rules = [item for item in rules["results"] if item["status"] == "not_applicable"]
-    d.metric("Applicable Issues", len(applicable_issues))
-    e.metric("Failed", rules["summary"]["failed"])
-    f.metric("Review", rules["summary"]["review"])
-    g.metric("Passed Rules", rules["summary"]["passed"])
-    h.metric("Not Used Rules", rules["summary"].get("not_applicable", 0))
-    st.caption("Default view shows only applicable rules that did not pass.")
-    if applicable_issues:
-        st.dataframe(applicable_issues[:50], use_container_width=True, hide_index=True)
-    else:
-        st.success("No applicable issues found in deterministic rule checks.")
-    with st.expander("Passed Rules"):
-        st.dataframe(passed_rules, use_container_width=True, hide_index=True)
-    with st.expander("Not Used / Not Applicable Rules"):
-        st.caption("These checks were not used because the required stack, file, or condition was not present.")
-        st.dataframe(not_used_rules, use_container_width=True, hide_index=True)
-    with st.expander("All Rule Results"):
-        st.dataframe(rules["results"], use_container_width=True, hide_index=True)
+    stack_caption = ", ".join(analysis["stack"]["badges"]) if analysis["stack"]["badges"] else analysis["stack"]["label"]
+    st.caption(f"Detected stack: {stack_caption}")
 
     st.subheader("AI Security Board")
     st.info("This will run 5 specialist agent calls + 1 final reporter call. Secrets are masked. Context is compressed.")
     if analysis["project_hash"] in st.session_state["ai_cache"]:
         st.caption("Cached AI result available for this masked project hash.")
-<<<<<<< HEAD
     can_run_real = ai_mode == "Demo Fallback" or bool(api_key)
     run_ai = st.button(_mode_run_label(ai_mode), type="primary", disabled=not can_run_real)
     if ai_mode == "SafeTestAgents" and not api_key:
         expected_names = ", ".join(_expected_api_key_names(provider))
         st.caption(f"Configure a server-side key to enable SafeTestAgents. Accepted names: {expected_names}.")
-=======
-    can_run_real = ai_mode == "Demo Fallback" or bool(api_key.strip())
-    run_ai = st.button(_mode_run_label(ai_mode), type="primary", disabled=not can_run_real)
-    if ai_mode == "SafeTestAgents" and not api_key.strip():
-        st.caption("Enter an API key to enable SafeTestAgents.")
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
     ai_result = st.session_state["ai_cache"].get(analysis["project_hash"])
     if ai_result:
@@ -1212,11 +1163,7 @@ def main() -> None:
         ):
             status_box.write(message)
         with st.spinner("Running masked parallel agent review..."):
-<<<<<<< HEAD
             ai_result = _run_ai_board(analysis, provider, api_key, model, PROVIDER_CONFIG[provider]["base_url"], ai_mode)
-=======
-            ai_result = _run_ai_board(analysis, provider, api_key, model, _provider_base_url(provider, base_url), ai_mode)
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
         completed = ai_result["final_report"].get("agents_completed_count", len(ai_result.get("agent_outputs", [])))
         expected = ai_result["final_report"].get("agents_expected_count", 5)
         incomplete = ai_result["final_report"].get("incomplete_agent_count", 0)
@@ -1224,16 +1171,23 @@ def main() -> None:
     if not ai_result:
         return
 
-<<<<<<< HEAD
     st.caption(
         f"Provider: {ai_result['provider']} | Model: {_model_label(ai_result['provider'], ai_result['model'])} | Mode: {ai_result['ai_mode']}"
         + (" | Using cached result" if ai_result["cached"] else "")
     )
-=======
-    st.caption(f"Provider: {ai_result['provider']} | Model: {ai_result['model']} | Mode: {ai_result['ai_mode']}" + (" | Using cached result" if ai_result["cached"] else ""))
->>>>>>> c2d9d991141189ba31dc7bcbc500ea505553be5a
 
     report = ai_result["final_report"]
+    st.subheader("Project Snapshot")
+    snap_a, snap_b, snap_c = st.columns(3)
+    snap_a.metric("Files discovered", len(scan["all_files"]))
+    snap_b.metric("Files scanned", scan["scanned_file_count"])
+    snap_c.metric("Junk ignored", len(scan["ignored_files"]))
+    st.caption(f"Source: {analysis['source_name']} ({analysis['source_type']})")
+    with st.expander("Detected stack and useful files"):
+        _render_badges(analysis["stack"]["badges"])
+        st.write(scan["useful_files"][:40])
+    st.success(f"Masking active. {masking['masked_file_count']} file(s) had secrets or sensitive tokens masked before display, reporting, or AI context assembly.")
+
     st.subheader("Final Reporter")
     st.markdown(render_score_meter(report["confidence_score"], report["decision"]), unsafe_allow_html=True)
     st.markdown(render_risk_level_badge(report.get("risk_level", "Medium Risk")), unsafe_allow_html=True)
@@ -1322,6 +1276,27 @@ def main() -> None:
 
     dynamic_result = report.get("dynamic_testing", dynamic_result)
     _render_dynamic_testing(dynamic_result, ai_mode == "SafeTestAgents")
+
+    st.subheader("Rule-Based Security Tests")
+    d, e, f, g, h = st.columns(5)
+    applicable_issues = [item for item in rules["results"] if item["status"] in {"fail", "review"}]
+    passed_rules = [item for item in rules["results"] if item["status"] == "pass"]
+    not_used_rules = [item for item in rules["results"] if item["status"] == "not_applicable"]
+    d.metric("Applicable Issues", len(applicable_issues))
+    e.metric("Failed", rules["summary"]["failed"])
+    f.metric("Review", rules["summary"]["review"])
+    g.metric("Passed Rules", rules["summary"]["passed"])
+    h.metric("Not Used Rules", rules["summary"].get("not_applicable", 0))
+    st.caption("Default view shows only applicable rules that did not pass.")
+    if applicable_issues:
+        st.dataframe(applicable_issues[:50], use_container_width=True, hide_index=True)
+    else:
+        st.success("No applicable issues found in deterministic rule checks.")
+    with st.expander("Passed Rules"):
+        st.dataframe(passed_rules, use_container_width=True, hide_index=True)
+    with st.expander("Not Used / Not Applicable Rules"):
+        st.caption("These checks were not used because the required stack, file, or condition was not present.")
+        st.dataframe(not_used_rules, use_container_width=True, hide_index=True)
 
     with st.expander("Detailed rules"):
         st.dataframe([item for item in rules["results"] if item["status"] in {"fail", "review"}], use_container_width=True, hide_index=True)
