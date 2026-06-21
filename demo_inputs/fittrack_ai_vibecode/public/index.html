@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitTrack AI</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="page-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-kicker">Vibe Coded Fitness Ops</span>
+        <h1>FitTrack AI</h1>
+      </div>
+      <nav class="nav-list">
+        <a href="/">Home</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/login">Login</a>
+        <a href="/admin">Admin</a>
+        <a href="/debug">Debug</a>
+      </nav>
+      <div class="sidebar-card">
+        <p class="label">Coach Pulse</p>
+        <strong>92% weekly adherence</strong>
+        <p>AI nudges are helping athletes close missed-session gaps.</p>
+      </div>
+    </aside>
+
+    <main class="content">
+      <header class="hero-card">
+        <div>
+          <p class="eyebrow">Fitness tracker investor preview</p>
+          <h2 id="page-title">FitTrack AI Dashboard</h2>
+          <p id="page-subtitle">High-energy wellness analytics, weekly plans, hydration trends, and a fake AI recommendation engine.</p>
+        </div>
+        <div class="hero-actions">
+          <button id="generate-plan-btn" class="primary-btn">Generate Plan</button>
+          <button id="add-workout-btn" class="secondary-btn">Add Workout</button>
+        </div>
+      </header>
+
+      <section class="metric-grid" id="metric-grid"></section>
+
+      <section class="dashboard-grid">
+        <div class="panel chart-panel">
+          <div class="panel-head">
+            <div>
+              <p class="label">Weekly progress</p>
+              <h3>Energy trend</h3>
+            </div>
+            <span class="pill">Last 7 days</span>
+          </div>
+          <canvas id="progress-chart" width="600" height="280"></canvas>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="label">Hydration</p>
+              <h3>Water intake tracker</h3>
+            </div>
+            <span class="pill" id="water-goal-pill">Goal 3.2L</span>
+          </div>
+          <div class="water-track">
+            <div class="water-fill" id="water-fill"></div>
+          </div>
+          <p id="water-copy">2.4L logged today. Add one more glass to reach the target.</p>
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="label">Workouts</p>
+              <h3>Recent sessions</h3>
+            </div>
+            <span class="pill accent">Live Demo</span>
+          </div>
+          <div id="workout-list" class="workout-list"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="label">AI Coach</p>
+              <h3>Recommendation panel</h3>
+            </div>
+            <span class="pill">Fake AI</span>
+          </div>
+          <div id="ai-panel" class="ai-panel"></div>
+        </div>
+      </section>
+
+      <section id="route-panel" class="panel route-panel"></section>
+    </main>
+  </div>
+
+  <div id="workout-modal" class="modal hidden">
+    <div class="modal-card">
+      <div class="panel-head">
+        <div>
+          <p class="label">Quick add</p>
+          <h3>Add workout</h3>
+        </div>
+        <button id="close-modal-btn" class="text-btn">Close</button>
+      </div>
+      <form id="workout-form" class="workout-form">
+        <label>
+          Workout name
+          <input type="text" id="workout-name" placeholder="Sprint Intervals" />
+        </label>
+        <label>
+          Duration
+          <input type="number" id="workout-duration" placeholder="30" />
+        </label>
+        <button type="submit" class="primary-btn">Save workout</button>
+      </form>
+      <p id="modal-feedback" class="muted"></p>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
