@@ -2,6 +2,16 @@
 
 InfraRed AI is a Streamlit MVP/demo for reviewing AI-generated application projects before deployment. It combines deterministic security checks, optional parallel AI review, and optional runtime sandbox testing so a reviewer can quickly judge whether an uploaded project is safe to ship, needs caution, or requires manual review.
 
+## Live Demo
+
+Temporary public demo:
+[Open InfraRed AI Demo](https://your-codespaces-or-forwarded-link)
+
+Note:
+- This is a temporary Codespaces-hosted demo link.
+- If the Codespace stops, the link may stop working until restarted.
+
+
 ## Project Overview
 
 InfraRed AI is designed for local defensive testing. A user uploads a project ZIP, the app extracts and filters relevant files, masks secrets before display or AI use, runs rule-based security checks, and then optionally runs a deeper AI-assisted review and runtime sandbox pass.
