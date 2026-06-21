@@ -5,7 +5,7 @@ InfraRed AI is a Streamlit MVP/demo for reviewing AI-generated application proje
 ## Live Demo
 
 Temporary public demo:
-[Open InfraRed AI Demo] (https://zany-eureka-v4j54jwrxp9fx7xg-8501.app.github.dev/) 
+[Open InfraRed AI Demo] (https://zany-eureka-v4j54jwrxp9fx7xg-8501.app.github.dev/) . If this stops just run it locally.
 
 To test this get the demo zip from demo (https://github.com/shadow2022-coder/Infra_AI_Agent/blob/main/demo_inputs/meal-prep-ai-demo.zip)
 
